@@ -7,9 +7,15 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 app.use('/pub', express.static(path.join(__dirname, 'client', 'public')));
 
 app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'client', 'index.html'));
+});
+
+app.get('/edit', (req, res) => {
     res.sendFile(path.join(__dirname, 'client', 'index.html'));
 });
 
@@ -32,6 +38,92 @@ app.get('/users/:userId', (req, res) => {
         } else {
             res.status(404).send({ state: 'User not found' });
         }
+    });
+});
+
+app.patch('/users/:userId', (req, res) => {
+    fs.readFile('./users.json', 'utf8', (err, data) => {
+        if (err) throw err;
+
+        const { users } = JSON.parse(data);
+        const userId = parseInt(req.params.userId);
+        const user = users.find(user => user.id === userId);
+
+        if (user) {
+            user.name = req.body.name;
+
+            fs.writeFile('./users.json', JSON.stringify({ users }), (err) => {
+                if (err) throw err;
+            });
+
+            res.send({ state: "DONE" });
+        } else {
+            res.status(404).send({ state: 'User not found' });
+        }
+    });
+});
+
+app.put('/users/:userId', (req, res) => {
+    fs.readFile('./users.json', 'utf8', (err, data) => {
+        if (err) throw err;
+
+        const { users } = JSON.parse(data);
+        const userId = parseInt(req.params.userId);
+        const user = users.find((user) => user.id === userId);
+
+        if (user) {
+            user.name = req.body.name;
+            user.id = req.body.id;
+
+            fs.writeFile('./users.json', JSON.stringify({ users }), (err) => {
+                if (err) throw err;
+            });
+
+            res.send({ state: "DONE" });
+        } else {
+            res.status(404).send({ state: 'User not found' });
+        }
+    });
+});
+
+app.delete('/users/:userId', (req, res) => {
+    fs.readFile('./users.json', 'utf8', (err, data) => {
+        if (err) throw err;
+
+        const { users } = JSON.parse(data);
+        const userId = parseInt(req.params.userId);
+        const user = users.find(user => user.id === userId);
+
+        if (user) {
+
+            fs.writeFile('./users.json', JSON.stringify({ users: users.filter((x) => x !== user) }), (err) => {
+                if (err) throw err;
+            });
+
+            res.send({ state: "DONE" });
+        } else {
+            res.status(404).send({ state: 'User not found' });
+        }
+    });
+});
+
+app.post('/users/:userId', (req, res) => {
+    fs.readFile('./users.json', 'utf8', (err, data) => {
+        if (err) throw err;
+
+        const { users } = JSON.parse(data);
+        const lastUser = users[users.length - 1];
+        const newUser = {
+            name: req.body.name,
+            id: lastUser ? lastUser.id + 1 : 1
+        }
+        users.push(newUser);
+
+        fs.writeFile('./users.json', JSON.stringify({ users }), (err) => {
+            if (err) throw err;
+        });
+
+        res.send({ state: "DONE" });
     });
 });
 

@@ -1,12 +1,1 @@
-{
-    "users": [
-        {
-            "id": 1,
-            "name": "Fanny"
-        },
-        {
-            "id": 2,
-            "name": "David"
-        }
-    ]
-}
+{"users":[{"name":"Ace","id":1},{"name":"Eionhorn","id":2},{"name":"Finkle","id":3}]}
